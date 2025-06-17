@@ -35,6 +35,11 @@ int puntosJugador; // 3 = gana, 1 = empate y 0 = derrota
 ///Prototipados de las funciones:
 int diagrama (int estadoActual, int iTransicion);
 
+///Funciones de cada estado
+///1.Presentacion
+int mainEstadoPresentacion (int estadoActual);
+int mainEstadoPresentacion (int estadoActual);
+
 stJugador cargarJugador (char nombreArchivo[]);
 char* establecerUsername (char nombreArchivo []);
 
@@ -61,24 +66,7 @@ int diagrama (int estadoActual, int iTransicion) {
     switch (estadoActual) {
 
         case 1: //PRESENTACION
-            system ("cls");
-            printf ("__________________________ \n");
-            printf ("Bienvenido \n");
-            printf ("    a \n");
-            printf ("TA TE TI \n");
-            printf ("__________________________ \n");
-
-            system ("pause");
-
-            //Logica de transicion
-            iTransicion = 2;    ///Transición a Menú principal
-
-            //Transicion al siguiente estado
-            switch (iTransicion) {
-            case 2:
-              estadoActual        = 2; //MENU PRINCIPAL
-              break;
-            }
+            estadoActual = mainEstadoPresentacion (estadoActual);
         break; ///Fin case 1
 
 
@@ -197,6 +185,31 @@ int diagrama (int estadoActual, int iTransicion) {
 
 
     return estadoActual;
+}
+
+int mainEstadoPresentacion (int estadoActual) {
+
+            int iTransicion = 0;
+
+            system ("cls");
+            printf ("__________________________ \n");
+            printf ("Bienvenido \n");
+            printf ("    a \n");
+            printf ("TA TE TI \n");
+            printf ("__________________________ \n");
+
+            system ("pause");
+
+            //Logica de transicion
+            iTransicion = 2;    ///Transición a Menú principal
+
+            //Transicion al siguiente estado
+            switch (iTransicion) {
+            case 2:
+              estadoActual        = 2; //MENU PRINCIPAL
+              break;
+            }
+            return estadoActual;
 }
 
 stJugador cargarJugador (char nombreArchivo[]) {
