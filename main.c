@@ -62,11 +62,11 @@ int diagrama (int estadoActual, int iTransicion) {
 
         case 1: //PRESENTACION
             system ("cls");
-            printf ("--------------------------- \n");
+            printf ("__________________________ \n");
             printf ("Bienvenido \n");
             printf ("    a \n");
             printf ("TA TE TI \n");
-            printf ("--------------------------- \n");
+            printf ("__________________________ \n");
 
             system ("pause");
 
