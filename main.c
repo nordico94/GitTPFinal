@@ -62,16 +62,16 @@ int diagrama (int estadoActual, int iTransicion) {
 
         case 1: //PRESENTACION
             system ("cls");
-            printf ("--------------------------- \n");
+            printf ("__________________________ \n");
             printf ("Bienvenido \n");
-            printf ("    a      \n");
-            printf ("TA TE TI   \n");
-            printf ("--------------------------- \n");
+            printf ("    a \n");
+            printf ("TA TE TI \n");
+            printf ("__________________________ \n");
 
             system ("pause");
 
             //Logica de transicion
-            iTransicion = 2;    ///Transición a Menú principal
+            iTransicion = 2;    ///TransiciÃ³n a MenÃº principal
 
             //Transicion al siguiente estado
             switch (iTransicion) {
@@ -137,7 +137,7 @@ int diagrama (int estadoActual, int iTransicion) {
             printf ("Ingrese Password: \n");
             scanf (" %s", &passwordIngresado);
             ///printf ("%s \n", passwordIngresado);
-            ///validar Contraseña
+            ///validar ContraseÃ±a
             } while (validacionUsuario != 0);
 
             printf ("%s bienvenido al juego TA TE TI\n", usuarioJugador);
@@ -171,7 +171,7 @@ int diagrama (int estadoActual, int iTransicion) {
             printf ("_______________________________________\n");
             scanf ("%i", &opcionPerfil);
 
-            ///Logica de transición
+            ///Logica de transiciÃ³n
             switch (opcionPerfil) {
                 case 1:
                         estadoActual  = 6;
@@ -251,5 +251,5 @@ char* establecerUsername (char nombreArchivo []) {
 
     strcpy(usernameValidado, usernameTentativo);
 
-    return usernameValidado; ///Deberia retornar directamente usernametentativo?
+    return usernameValidado; ///Deberia retornar directamente usernameTentativo?
 }
