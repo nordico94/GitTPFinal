@@ -64,8 +64,8 @@ int diagrama (int estadoActual, int iTransicion) {
             system ("cls");
             printf ("--------------------------- \n");
             printf ("Bienvenido \n");
-            printf ("    a \n");
-            printf ("TA TE TI \n");
+            printf ("    a      \n");
+            printf ("TA TE TI   \n");
             printf ("--------------------------- \n");
 
             system ("pause");
