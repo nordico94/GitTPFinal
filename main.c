@@ -62,9 +62,11 @@ int diagrama (int estadoActual, int iTransicion) {
 
         case 1: //PRESENTACION
             system ("cls");
+            printf ("--------------------------- \n");
             printf ("Bienvenido \n");
             printf ("    a \n");
             printf ("TA TE TI \n");
+            printf ("--------------------------- \n");
 
             system ("pause");
 
@@ -212,7 +214,7 @@ stJugador cargarJugador (char nombreArchivo[]) {
     printf ("Ingrese email del jugador: \n");
     scanf (" s", &emailTentativo);
 
-    strcpy(jugadorNuevo.username, establecerUsername (nombreArchivo)); ///
+    strcpy(jugadorNuevo.username, establecerUsername (nombreArchivo)); /// Solicita y valida nombre de usuario
 
     printf ("Ingrese password del jugador: \n");
     scanf (" s", &passwordTentativo);
@@ -231,7 +233,7 @@ char* establecerUsername (char nombreArchivo []) {
 
     int validacionUsername = 0;
 
-    FILE *archi = fopen (JUGADORES, "rb");
+    FILE *archi = fopen (nombreArchivo, "rb");
 
     do {
         printf ("Ingrese username del jugador: \n");
@@ -249,5 +251,5 @@ char* establecerUsername (char nombreArchivo []) {
 
     strcpy(usernameValidado, usernameTentativo);
 
-    return usernameValidado;
+    return usernameValidado; ///Deberia retornar directamente usernametentativo?
 }
