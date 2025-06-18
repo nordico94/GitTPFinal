@@ -189,7 +189,7 @@ int diagrama (int estadoActual, int iTransicion) {
     return estadoActual;
 }
 
-///2. Funciones Estado MENU PRINCIPAL
+///1. Funciones Estado PRESENTACION
 int mainEstadoPresentacion (int estadoActual) {
 
             int iTransicion = 0;
