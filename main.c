@@ -189,6 +189,7 @@ int diagrama (int estadoActual, int iTransicion) {
     return estadoActual;
 }
 
+///2. Funciones Estado MENU PRINCIPAL
 int mainEstadoPresentacion (int estadoActual) {
 
             int iTransicion = 0;
@@ -214,6 +215,7 @@ int mainEstadoPresentacion (int estadoActual) {
             return estadoActual;
 }
 
+///3. Funciones Estado REGISTRARSE
 stJugador cargarJugador (char nombreArchivo[]) {
 
     stJugador jugadorNuevo;
@@ -238,7 +240,7 @@ stJugador cargarJugador (char nombreArchivo[]) {
     return jugadorNuevo;
 }
 
-///Validacion Email (@, ".com", unico)
+///3.1 Validacion Email (@, ".com", unico)
 char* establecerEmail (char nombreArchivo[]) {
 
     stJugador jugador;
@@ -300,7 +302,7 @@ char* establecerEmail (char nombreArchivo[]) {
     return email;
 }
 
-///Validacion Usuario (Unico)
+///3.2 Validacion Usuario (Unico)
 char* establecerUsername (char nombreArchivo []) {
 
     stJugador jugador;
@@ -330,7 +332,7 @@ char* establecerUsername (char nombreArchivo []) {
     return usernameValidado; ///Deberia retornar directamente usernameTentativo?
 }
 
-///Validacion contraseña (1 min, 1 MAY)
+///3.3 Validacion contraseña (1 min, 1 MAY)
 char* establecerPassword () {
 
     char password[30];
