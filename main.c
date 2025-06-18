@@ -40,9 +40,11 @@ int diagrama (int estadoActual, int iTransicion);
 int mainEstadoPresentacion (int estadoActual);
 int mainEstadoPresentacion (int estadoActual);
 
+///3.Registrarse
 stJugador cargarJugador (char nombreArchivo[]);
+char* establecerEmail (char nombreArchivo[]);
 char* establecerUsername (char nombreArchivo []);
-
+char* establecerPassword ();
 
 
 
@@ -224,13 +226,11 @@ stJugador cargarJugador (char nombreArchivo[]) {
     printf ("Ingrese apellido del jugador: \n");
     scanf (" %s", &jugadorNuevo.apellido);
 
-    printf ("Ingrese email del jugador: \n");
-    scanf (" s", &emailTentativo);
+    strcpy(jugadorNuevo.email, establecerEmail (nombreArchivo)); /// Solicita y valida nombre de usuario
 
     strcpy(jugadorNuevo.username, establecerUsername (nombreArchivo)); /// Solicita y valida nombre de usuario
 
-    printf ("Ingrese password del jugador: \n");
-    scanf (" s", &passwordTentativo);
+    strcpy(jugadorNuevo.password, establecerPassword ()); /// Solicita y valida password
 
     jugadorNuevo.ptsTotales = 0;
     jugadorNuevo.eliminado = 1;
@@ -238,6 +238,69 @@ stJugador cargarJugador (char nombreArchivo[]) {
     return jugadorNuevo;
 }
 
+///Validacion Email (@, ".com", unico)
+char* establecerEmail (char nombreArchivo[]) {
+
+    stJugador jugador;
+    char email[50];
+
+    int longitudEmail = 0;
+
+    int condicionArroba = 0;
+    int condicionPuntoCom = 0;
+    int condicionUnico = 0;
+
+    int validacionEmail = 0; ///Validado = 1, No validado = 0;
+    int i = 0;
+
+    FILE *archi = fopen (nombreArchivo, "rb");
+
+    do {
+        condicionArroba = 0;
+        condicionPuntoCom = 0;
+        condicionUnico = 1;
+        i = 0;
+
+        printf ("Ingrese email del jugador: \n");
+        scanf (" s", &email);
+
+        longitudEmail = strlen(email);;
+
+        if (longitudEmail > 5) {
+                ///Condicion Arroba:
+                while (i < (longitudEmail - 4)) {
+                    if (email[i] == '@') {
+                        condicionArroba = 1;
+                    }
+                    i = i + 1;
+                }
+                ///Condicion ".com":
+                if (email[longitudEmail - 4] == '.' &&
+                    email[longitudEmail - 3] == 'c' &&
+                    email[longitudEmail - 2] == 'o' &&
+                    email[longitudEmail - 1] == 'm') {
+                        condicionPuntoCom = 1;
+                }
+                ///Condicion unicidad:
+                if (archi) {
+                    while (fread(&jugador, sizeof(stJugador), 1, archi) > 0 && condicionPuntoCom == 1 ){
+                        if (strcmp(email, jugador.email) == 0){
+                            condicionPuntoCom = 0;
+                        }
+                    }
+                    fclose (archi);
+                }
+
+                if (condicionArroba == 1 && condicionPuntoCom == 1 && condicionUnico == 1){
+                    validacionEmail = 1;
+                }
+        }
+    } while (validacionEmail != 0);
+
+    return email;
+}
+
+///Validacion Usuario (Unico)
 char* establecerUsername (char nombreArchivo []) {
 
     stJugador jugador;
@@ -253,7 +316,7 @@ char* establecerUsername (char nombreArchivo []) {
         scanf (" s", &usernameTentativo);
 
         if (archi) {
-            while (fread(&jugador, sizeof(stJugador), 1, archi)>0 & validacionUsername == 0 ){
+            while (fread(&jugador, sizeof(stJugador), 1, archi)>0 && validacionUsername == 0 ){
                 if (strcmp(usernameTentativo, jugador.username) == 0){
                     validacionUsername = 1;
                 }
@@ -266,3 +329,45 @@ char* establecerUsername (char nombreArchivo []) {
 
     return usernameValidado; ///Deberia retornar directamente usernameTentativo?
 }
+
+///Validacion contraseña (1 min, 1 MAY)
+char* establecerPassword () {
+
+    char password[30];
+
+    int condicionMinuscula = 0;
+    int condicionMayuscula = 0;
+
+    int validacionPassword = 0; ///Validado = 1, No validado = 0;
+    int i = 0;
+
+    do {
+        condicionMinuscula = 0;
+        condicionMayuscula = 0;
+
+        printf ("Ingrese password del jugador: \n");
+        scanf (" s", &password); ///passwordTentativo = arreglo de caracteres
+
+        i = 0;
+
+        while (password[i] != '\0' && validacionPassword == 0) {
+            if (password[i]>= 'a' && password[i] <= 'z') {
+                condicionMinuscula = 1;
+            }
+            if (password[i]>= 'A' && password[i] <= 'Z') {
+                condicionMinuscula = 1;
+            }
+
+            i = i + 1;
+
+            if (condicionMinuscula == 1 && condicionMayuscula ==1 ) {
+                validacionPassword = 1;
+            }
+        }
+    } while (validacionPassword == 0);
+
+    return password;
+}
+
+
+
