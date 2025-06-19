@@ -71,8 +71,6 @@ int main()
  stJugador arregloJugadores[15];
 
  int validosJugadores = 0;
-printf ("Contenido: %i \n", validosJugadores);
-printf ("Direccion: %i \n", &validosJugadores);
 
  while (estadoActual != 0) {
     estadoActual = diagrama (estadoActual, JUGADORES, arregloJugadores, &validosJugadores); ///Paso direccion de validos
@@ -127,14 +125,9 @@ int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador ar
 
             FILE *archi = fopen (nombreArchivo, "rb");
             if (archi) {
-                printf ("Entre");
                  while (fread (&jugador, sizeof (stJugador), 1, archi)) {
-                    printf ("Direccion: %i \n", validosJugadores);
-                    printf ("Contenido: %i \n", *validosJugadores);
                     arregloJugadores[*validosJugadores] = jugador;
                     (*validosJugadores)++;
-                     printf ("Direccion: %i \n", validosJugadores);
-                    printf ("Contenido: %i \n", *validosJugadores);
                  }
 
                 //Logica de transicion
@@ -228,15 +221,8 @@ int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *
     printf ("Ingrese datos del nuevo jugador \n");
 
     jugadorNuevo = cargarJugador (arregloJugadores, validosJugadores, 1);
-        printf("Validos resgistrarse %i \n", validosJugadores);
-        printf("Validos resgistrarse  & %i \n", &validosJugadores);
-        printf("Validos resgistrarse  * %i \n", *validosJugadores);
-        (*validosJugadores)++;
+    (*validosJugadores)++;
     system ("pause");
-            printf("Validos resgistrarse %i \n", validosJugadores);
-        printf("Validos resgistrarse  & %i \n", &validosJugadores);
-        printf("Validos resgistrarse  * %i \n", *validosJugadores);
-        system ("pause");
     //Logica de transicion
     iTransicion = 4;    ///Transición a INICIAR SESION
 
@@ -280,9 +266,6 @@ stJugador cargarJugador (stJugador arregloJugadores[], int *validosJugadores, in
 char* establecerEmail (stJugador arregloJugadores[], int validosJugadores, int aux) {
 
     stJugador jugador;
-            printf("Validos email %i \n", validosJugadores);
-        printf("Validos email  & %i \n", &validosJugadores);
-        //printf("Validos email * %i \n", *validosJugadores);
     char email[50];
 
     int longitudEmail = 0;
@@ -357,7 +340,7 @@ char* establecerUsername (stJugador arregloJugadores[], int validosJugadores, in
     int i = 0;
 
     do {
-            printf("Validos %i \n", validosJugadores);
+        ///printf("Validos %i \n", validosJugadores);
         printf ("Ingrese username del jugador: \n");
         scanf (" %s", &usernameTentativo);
 
@@ -511,7 +494,7 @@ int mostrarArreglo (int estadoActual, stJugador arregloJugadores[], int *validos
 
     for (int i = 0; i < *validosJugadores; i++) {
         mostrarJugador(arregloJugadores[i]);
-        printf ("____________________________________");
+        printf ("____________________________________\n");
     }
     int iTransicion = 2;
     switch (iTransicion) {
