@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <conio.h>
 
 #define JUGADORES "jugadores.dat"
 #define PARTIDAS "partidas.dat"
@@ -59,7 +60,7 @@ char* establecerPassword ();
 int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario) ;
 
 ///7.Perfil Jugador
-int mainEstadoPerfilJugador (int estadoActual, int *idJugadorUsuario);
+int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario) ;
 
 
 ///Otros
@@ -73,7 +74,6 @@ int main()
 
  stJugador arregloJugadores[15];
  int validosJugadores = 0;
- int idActual = 0;
 
  while (estadoActual != 0) {
     estadoActual = diagrama (estadoActual, JUGADORES, arregloJugadores, &validosJugadores); ///Paso direccion de validos
@@ -112,7 +112,7 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
         break; ///Fin case 5
 
         case 7: ///PERFIL JUGADOR
-            estadoActual = mainEstadoPerfilJugador(estadoActual, &idJugadorUsuario);
+            estadoActual = mainEstadoPerfilJugador(estadoActual, arregloJugadores, &idJugadorUsuario);
         break;
 
         case 99: ///VER ARREGLO
@@ -125,28 +125,53 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
 }
 
 ///1. Funciones Estado PRESENTACION
-int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+//int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+//
+//            char cTransicion = '1';
+//
+//            system ("cls");
+//            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
+//            printf ("__________________________ \n");
+//            printf ("Bienvenido \n");
+//            printf ("    a \n");
+//            printf ("TA TE TI \n");
+//            printf ("__________________________ \n");
+//
+//            printf ("Presione una tecla... <S: Salir>)");
+//            scanf (" %c", &cTransicion);
+//
+//            if (cTransicion =='S' || cTransicion == 's') {
+//                estadoActual = 0; ///Sale de la consola
+//            } else {
+//                estadoActual = 2; ///Transicion a estado 2: CARGAR INFORMACION
+//            }
+//
+//            return estadoActual;
+//}
 
-            char cTransicion = '1';
+int mainEstadoPresentacion(int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
 
-            system ("cls");
-            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
-            printf ("__________________________ \n");
-            printf ("Bienvenido \n");
-            printf ("    a \n");
-            printf ("TA TE TI \n");
-            printf ("__________________________ \n");
+    char cTransicion;
 
-            printf ("Presione una tecla... <S: Salir>)");
-            scanf (" %c", &cTransicion);
+    system("cls");
+    printf("Validos (pre-estado): %i \n", (*validosJugadores));
+    printf("__________________________ \n");
+    printf("Bienvenido \n");
+    printf("    a \n");
+    printf("TA TE TI \n");
+    printf("__________________________ \n");
 
-            if (cTransicion =='S' || cTransicion == 's') {
-                estadoActual = 0; ///Sale de la consola
-            } else {
-                estadoActual = 2; ///Transicion a estado 2: CARGAR INFORMACION
-            }
+    printf("Presione una tecla... <S: Salir>)");
 
-            return estadoActual;
+    cTransicion = getch();
+
+    if (cTransicion == 'S' || cTransicion == 's') {
+        estadoActual = 0;  // Sale de la consola
+    } else {
+        estadoActual = 2;  // Transición a estado 2: CARGAR INFORMACION
+    }
+
+    return estadoActual;
 }
 
 ///2. Funciones Estado GARGAR INFORMACION
@@ -226,7 +251,7 @@ int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJu
 ///4. Funciones Estado MENU PRINCIPAL
 int mainEstadoMenuPrincipal (int estadoActual) {
 
-        int opcionInicio = 0;
+        char opcionInicio = 0;
 
         do {
         system ("cls");
@@ -243,22 +268,24 @@ int mainEstadoMenuPrincipal (int estadoActual) {
         printf ("\n");
         printf ("\n");
         printf ("___________________________________________ \n");
-        scanf ("%i", &opcionInicio);
 
-        } while (opcionInicio != 1 && opcionInicio != 2 && opcionInicio != 3 && opcionInicio != 4);
+        ///scanf ("%i", &opcionInicio);
+        opcionInicio = getch();
+
+        } while (opcionInicio != '1' && opcionInicio != '2' && opcionInicio != '3' && opcionInicio != '4');
 
         //Logica de transicion y transicion al siguiente estado
         switch (opcionInicio) {
-            case 1:
+            case '1':
                     estadoActual  = 6; ///INICIAR SESION
                     break;
-            case 2:
+            case '2':
                     estadoActual  = 5; ///REGISTRARSE
                     break;
-            case 3:
+            case '3':
                     estadoActual  = 99; ///VER ARREGLO DE JUGADORES
                     break;
-            case 4:
+            case '4':
                     estadoActual  = 3; ///DESCARGAR INFORMACION EN ARCHIVO
                     break;
         }
@@ -271,7 +298,6 @@ int mainEstadoMenuPrincipal (int estadoActual) {
 int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int aux) {
 
     stJugador jugadorNuevo;
-    int iTransicion = 0;
 
     system ("cls");
     printf ("Validos (pre-estado): %i \n", (*validosJugadores));
@@ -285,7 +311,7 @@ int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *
     jugadorNuevo.idJugador = (*validosJugadores)+1;
 
     system ("cls");
-    printf ("Datos nuevo jugador : \n");
+    printf ("Datos del nuevo jugador : \n");
     mostrarJugador (jugadorNuevo);
     arregloJugadores[*validosJugadores]=jugadorNuevo;
     (*validosJugadores)++;
@@ -531,39 +557,41 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
 }
 
 ///Funciones estado 7: PERFIL JUGADOR
-int mainEstadoPerfilJugador (int estadoActual, int *idJugadorUsuario) {
+int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario) {
 
-        int opcionPerfil = 0;
-        char usuarioJugador[15];
+        char opcionPerfil = 0;
         system ("cls");
         printf ("idJugador del Usuario: %i \n", (*idJugadorUsuario));
+
         do {
         ///system ("cls");
         printf ("_______________________________________\n");
-        printf ("         HOLA %s \n", usuarioJugador);
+        printf ("         HOLA %s \n", arregloJugadores[*idJugadorUsuario-1].nombre);
         printf ("_______________________________________\n");
         printf ("1. MODIFICAR DATOS\n");
         printf ("2. VER ESTADISTICAS\n");
         printf ("3. JUGAR PARTIDA\n");
-        printf ("0. CERRAR SESION\n");
+        printf ("4. CERRAR SESION\n");
         printf ("_______________________________________\n");
-        scanf ("%i", &opcionPerfil);
-        } while (opcionPerfil != 1 && opcionPerfil != 2 && opcionPerfil != 3 && opcionPerfil != 0);
+
+        opcionPerfil = getch();
+
+        } while (opcionPerfil != '1' && opcionPerfil != '2' && opcionPerfil != '3' && opcionPerfil != '4');
+
         ///Logica de transición
         switch (opcionPerfil) {
-            case 1:
+            case '1':
                     estadoActual  = 8; ///MODIFICAR DATOS
                     break;
-            case 2:
+            case '2':
                     estadoActual  = 9;  ///ESTADISTICAS
                     break;
-            case 3:
+            case '3':
                     estadoActual  = 10;      ///JUGAR PARTIDA
                     break;
-            case 0:
+            case '0':
                     estadoActual = 4;   ///MENU PRINCIPAL
                     break;
-
         }
 
         return estadoActual;
