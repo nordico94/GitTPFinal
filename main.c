@@ -56,10 +56,10 @@ char* establecerPassword ();
 
 
 ///6.Iniciar Sesion
-int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int *validosJugadores) ;
+int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario) ;
 
 ///7.Perfil Jugador
-int mainEstadoPerfilJugador (int estadoActual);
+int mainEstadoPerfilJugador (int estadoActual, int *idJugadorUsuario);
 
 
 ///Otros
@@ -82,9 +82,12 @@ int main()
 
 int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
 
+    int idJugadorUsuario;
+
     switch (estadoActual) {
 
         case 1: ///PRESENTACION
+
             estadoActual = mainEstadoPresentacion (estadoActual, nombreArchivo,arregloJugadores, validosJugadores); ///ValidosJugadores es direccion
         break; ///Fin case 1
 
@@ -105,11 +108,11 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
         break; ///Fin case 4
 
         case 6: ///INICIAR SESION
-            estadoActual = mainEstadoIniciarSesion(estadoActual, arregloJugadores, validosJugadores);       ///ValidosJugadores es direccion
+            estadoActual = mainEstadoIniciarSesion(estadoActual, arregloJugadores, validosJugadores, &idJugadorUsuario);       ///ValidosJugadores es direccion
         break; ///Fin case 5
 
         case 7: ///PERFIL JUGADOR
-            estadoActual = mainEstadoPerfilJugador(estadoActual);
+            estadoActual = mainEstadoPerfilJugador(estadoActual, &idJugadorUsuario);
         break;
 
         case 99: ///VER ARREGLO
@@ -127,6 +130,7 @@ int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador ar
             char cTransicion = '1';
 
             system ("cls");
+            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
             printf ("__________________________ \n");
             printf ("Bienvenido \n");
             printf ("    a \n");
@@ -157,31 +161,34 @@ int mainEstadoCargarInformacion (int estadoActual, char nombreArchivo[], stJugad
 
             FILE *archi = fopen (nombreArchivo, "rb");
             if (archi) {  ///Si el archivo existe carga la informacion en un arreglo
-                while (fread (&jugador, sizeof (stJugador), 1, archi)) {
-                    arregloJugadores[*validosJugadores] = jugador;
-                    (*validosJugadores)++;
-                }
-                fclose (archi);
+                            while (fread (&jugador, sizeof (stJugador), 1, archi)) {
+                                arregloJugadores[*validosJugadores] = jugador;
+                                (*validosJugadores)++;
+                            }
+                            fclose (archi);
 
-                ///Logica de transicion
-                estadoActual = 4; ///Transición a estado 3: MENU PRINCIPAL
-                system ("pause");
+                            ///Logica de transicion
+                            estadoActual = 4; ///Transición a estado 3: MENU PRINCIPAL
+                            system ("cls");
+                            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
+                            printf ("*** Cargando datos del juego ***  \n");
+                            system ("pause");
 
             } else {   ///Si el archivo no existe registra al primer jugador en el archivo
-                printf ("Sin datos. Se cargara al primer jugador del sistema \n");
-                FILE *archi = fopen (nombreArchivo, "wb");
+                            printf ("Sin datos. Se cargara al primer jugador del sistema \n");
+                            FILE *archi = fopen (nombreArchivo, "wb");
 
-                if (archi) {
-                    ///Crear primer jugador del archivo
+                            if (archi) {
+                                ///Crear primer jugador del archivo
 
-                    jugador = cargarJugador (arregloJugadores, validosJugadores, 0);
-                    jugador.idJugador = 0;
-                    fwrite (&jugador, sizeof(stJugador), 1, archi);
-                    fclose (archi);
-                }
+                                jugador = cargarJugador (arregloJugadores, validosJugadores, 0);
+                                jugador.idJugador = 1;
+                                fwrite (&jugador, sizeof(stJugador), 1, archi);
+                                fclose (archi);
+                            }
 
-                //Logica de transicion
-                estadoActual = 2;    ///Transicion a estado 2: CARGAR INFORMACION
+                            //Logica de transicion
+                            estadoActual = 2;    ///Transicion a estado 2: CARGAR INFORMACION
             }
             return estadoActual;
 }
@@ -196,7 +203,7 @@ int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJu
 
             ///Descarga de informacion de jugadores:  Desde arregloJugadores a archivo JUGADORES
 
-            FILE *archi = fopen (nombreArchivo, "wb"); ///Se reescribe archivo
+            FILE *archi = fopen (nombreArchivo, "wb"); ///Se reescribe archivo con los nuevos datos
             if (archi) {  ///Si el archivo existe descarga la informacion en un arreglo
                     for (int i = 0; i < (*validosJugadores); i++ ) {
                         jugador = arregloJugadores[i];
@@ -206,7 +213,8 @@ int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJu
             }
 
             (*validosJugadores) = 0;
-            printf ("Descargando informacion a archivo...\n");
+            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
+            printf ("*** Descargando datos del juego a archivo... ****\n");
             system ("pause");
 
             ///Logica de transicion
@@ -266,6 +274,7 @@ int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *
     int iTransicion = 0;
 
     system ("cls");
+    printf ("Validos (pre-estado): %i \n", (*validosJugadores));
     printf ("___________________________________________ \n");
     printf ("             REGISTRO \n");
     printf ("___________________________________________ \n");
@@ -273,7 +282,7 @@ int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *
     printf ("Ingrese datos del nuevo jugador \n");
 
     jugadorNuevo = cargarJugador (arregloJugadores, validosJugadores, 1);
-    jugadorNuevo.idJugador = (*validosJugadores);
+    jugadorNuevo.idJugador = (*validosJugadores)+1;
 
     system ("cls");
     printf ("Datos nuevo jugador : \n");
@@ -455,35 +464,36 @@ char* establecerPassword () {
 
 ///FUNCIONES ESTADO 6: INICIAR SESION
 
-int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int *validosJugadores) {
+int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario) {
 
         int validacionUsuario = 0; ///1: Validado, 0: No validado
         int iTransicion = 0;
 
-        stJugador jugadorUsuario;
         char usuarioIngresado [15];
         char passwordIngresado [15];
-
+        int i = 0;
 
         system ("cls");
-        printf ("validos actualizado: %i \n" , *validosJugadores );
+        printf ("Validos (pre-estado): %i \n", (*validosJugadores));
         do {
             system ("cls");
             printf ("_______________________________________\n");
             printf ("            INICIO DE SESION\n");
             printf ("_______________________________________\n");
             printf ("_______________________________________\n");
+
             printf ("Ingrese Usuario: \n");
             scanf (" %s", &usuarioIngresado);
-            ///printf ("Usuario ingresado : %s \n", usuarioIngresado );
 
-            for (int i = 0; i < *validosJugadores; i++) {
-                if (strcmp(usuarioIngresado, arregloJugadores[i].username) == 0) {
+            i = 0;
+            while (i < *validosJugadores && validacionUsuario == 0 ) {
+            ///for (int i = 0; i < *validosJugadores; i++) {
+                if (strcmp(usuarioIngresado, arregloJugadores[i].username) == 0) { ///Valida username ingresado
                     printf ("Ingrese Password: \n");
                     scanf (" %s", &passwordIngresado);
-                    if (strcmp(passwordIngresado, arregloJugadores[i].password) == 0)  {
+                    if (strcmp(passwordIngresado, arregloJugadores[i].password) == 0)  { ///Valida password ingresado
                         validacionUsuario = 1;
-                        jugadorUsuario = arregloJugadores[i];
+                        (*idJugadorUsuario) = arregloJugadores[i].idJugador;
                     } else {
                         printf ("Password incorrecto, intente nuevamente \n");
                         system ("pause");
@@ -495,10 +505,12 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
                         system ("pause");
                     }
                 }
+                i = i + 1;
             }
 
         } while (validacionUsuario != 1);
 
+        system ("cls");
         printf ("%s bienvenido al juego TA TE TI\n", usuarioIngresado);
         system ("pause");
 
@@ -519,12 +531,14 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
 }
 
 ///Funciones estado 7: PERFIL JUGADOR
-int mainEstadoPerfilJugador (int estadoActual) {
+int mainEstadoPerfilJugador (int estadoActual, int *idJugadorUsuario) {
 
         int opcionPerfil = 0;
         char usuarioJugador[15];
-        do {
         system ("cls");
+        printf ("idJugador del Usuario: %i \n", (*idJugadorUsuario));
+        do {
+        ///system ("cls");
         printf ("_______________________________________\n");
         printf ("         HOLA %s \n", usuarioJugador);
         printf ("_______________________________________\n");
