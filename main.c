@@ -589,7 +589,7 @@ int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int
             case '3':
                     estadoActual  = 10;      ///JUGAR PARTIDA
                     break;
-            case '0':
+            case '4':
                     estadoActual = 4;   ///MENU PRINCIPAL
                     break;
         }
