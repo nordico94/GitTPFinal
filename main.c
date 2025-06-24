@@ -5,6 +5,7 @@
 #define JUGADORES "jugadores.dat"
 #define PARTIDAS "partidas.dat"
 #define RELACION "partidaXjugador.dat"
+#define ESC 27
 
 typedef struct {
 int idJugador;
@@ -63,6 +64,27 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
 int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario) ;
 
 
+///10. Jugar Partida
+int mainEstadoJugarPartida (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario);
+
+///15. MODO DOS JUGADORES
+int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
+
+void iniciarSesionInvitado (stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
+void partida();
+void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador);
+int buscarPosicionFila (int posicion);
+int buscarPosicionColumna (int posicion);
+int verificacionJugada (int posicion, int arregloJugadasX[], int *validosX, int arregloJugadasO[], int *validosO);
+
+int verificarIfGanador(int arr[], int v, int posA, int posB, int posC);
+int verificarVictoria(int arr[],int v);
+char ganadorPartida(int arrX[], int arrO[], int vX, int vO);
+int mostrarGanador(char ganador);
+
+void mostrarMatrix (char matrix [3][3]);
+
+
 ///Otros
 int mostrarArreglo (int estadoActual, stJugador arregloJugadores[], int *validosJugadores) ;
 void mostrarJugador (stJugador jugador);
@@ -89,36 +111,39 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
         case 1: ///PRESENTACION
 
             estadoActual = mainEstadoPresentacion (estadoActual, nombreArchivo,arregloJugadores, validosJugadores); ///ValidosJugadores es direccion
-        break; ///Fin case 1
+            break; ///Fin case 1
 
         case 2: ///CARGAR INFORMACION
             estadoActual = mainEstadoCargarInformacion (estadoActual,nombreArchivo,arregloJugadores,validosJugadores); ///ValidosJugadores es direccion
-        break; ///Fin case 2
+            break; ///Fin case 2
 
         case 3: ///DESCARGAR INFORMACION
             estadoActual = mainEstadoDescargarInformacion (estadoActual,nombreArchivo,arregloJugadores,validosJugadores); ///ValidosJugadores es direccion
-        break; ///Fin case 2
+            break; ///Fin case 2
 
         case 4: ///MENU PRINCIPAL
             estadoActual = mainEstadoMenuPrincipal(estadoActual);
-        break; /// Fin case 3
+            break; /// Fin case 3
 
         case 5: ///REGISTRARSE
             estadoActual = mainEstadoRegistrarse (estadoActual,arregloJugadores,validosJugadores,1);    ///ValidosJugadores es direccion
-        break; ///Fin case 4
+            break; ///Fin case 4
 
         case 6: ///INICIAR SESION
             estadoActual = mainEstadoIniciarSesion(estadoActual, arregloJugadores, validosJugadores, &idJugadorUsuario);       ///ValidosJugadores es direccion
-        break; ///Fin case 5
+            break; ///Fin case 5
 
         case 7: ///PERFIL JUGADOR
             estadoActual = mainEstadoPerfilJugador(estadoActual, arregloJugadores, &idJugadorUsuario);
-        break;
+            break;
+
+        case 10: ///JUGAR PARTIDA
+            estadoActual = mainEstadoJugarPartida (estadoActual,arregloJugadores, &idJugadorUsuario);
+            break;
 
         case 99: ///VER ARREGLO
             estadoActual = mostrarArreglo (estadoActual,arregloJugadores, validosJugadores);        ///ValidosJugadores es direccion
-        break;
-
+            break;
     }
 
     return estadoActual;
@@ -591,11 +616,374 @@ int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int
                     break;
             case '4':
                     estadoActual = 4;   ///MENU PRINCIPAL
+                    (*idJugadorUsuario)=0;
                     break;
         }
 
         return estadoActual;
 }
+
+///Funciones estado 10: JUGAR PARTIDA
+int mainEstadoJugarPartida (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario) {
+
+        char opcionNroJugadores = '3';
+
+        do {
+        system("cls");
+        printf ("_______________________________________\n");
+        printf ("         NUEVA PARTIDA \n");
+        printf ("_______________________________________\n");
+        printf ("1. UN JUGADOR\n");
+        printf ("2. DOS JUGADORES\n");
+        printf ("3. SALIR\n");
+        printf ("_______________________________________\n");
+
+        opcionNroJugadores = getch();
+
+        } while (opcionNroJugadores != '1' && opcionNroJugadores != '2' && opcionNroJugadores!= '3');
+
+        ///Logica de transición
+        switch (opcionNroJugadores) {
+            case '1':
+                    estadoActual  = 15; ///MODO UN JUGADOR
+                    break;
+            case '2':
+                    estadoActual  = 16;  ///MODO DOS JUGADORES
+                    break;
+            case '3':
+                    estadoActual  = 7;      ///JUGAR PARTIDA
+                    break;
+        }
+
+        return estadoActual;
+}
+
+///Funciones estado 15: MODO UN JUGADOR
+int mainEstadoJugarPartidaUnJugador (int estadoActual, stJugador arregloJugadores[],int *validosJugadores,  int *idJugadorUsuario) {
+
+
+}
+
+
+///Funciones estado 16: MODO DOS JUGADORES
+int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado ) {
+
+        char opcionRevancha = 'N';
+
+        iniciarSesionInvitado (arregloJugadores, validosJugadores, idJugadorUsuario, idJugadorInvitado );
+
+        do {
+        partida();
+        system("pause");
+        system("cls");
+        printf ("DESEA JUGAR REVANCHA <y/n>?");
+        opcionRevancha = getch();
+
+        } while (opcionRevancha != 'n' && opcionRevancha != 'N');
+
+        estadoActual  = 10;      ///JUGAR PARTIDA
+
+        return estadoActual;
+
+}
+
+void partida()
+{
+
+    char Tablero [3][3] = {'7', '8', '9', '4', '5', '6', '1', '2', '3'};
+    int arregloJugadasX [8];
+    int validosX=0;
+    int arregloJugadasO [8];
+    int validosO=0;
+    char idJugador = 'N';
+    int win=0;
+    int jugadas=0;
+
+    mostrarMatrix(Tablero);
+    while(win==0 && jugadas<9)
+    {
+        idJugador = 'X';
+        ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador);
+        jugadas++;
+
+        win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
+
+        if(jugadas<9 && win != 1)
+        {
+            idJugador = 'O';
+            ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador);
+            jugadas++;
+            win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
+        }
+    }
+    if (win == 0 && jugadas == 9)
+    {
+        system("cls");
+        mostrarMatrix(Tablero);
+        printf("\nEMPATE\n\n");
+    }
+}
+
+void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador) //ok
+{
+    int posicion = 0;
+    int fila;
+    int columna;
+    int verificacionJugadaIngresada=0;
+
+    while (verificacionJugadaIngresada == 0)
+    {
+        system("cls");
+        mostrarMatrix(matrix);
+        printf("Jugador %c Ingrese posicion desde teclado numerico:\n", idJugador);
+        scanf ("%d", &posicion);
+        verificacionJugadaIngresada = verificacionJugada (posicion, arregloJugadasO, validosO,arregloJugadasX,validosX); //0 : Jugada invalida,  1: juagada valida
+        if (verificacionJugadaIngresada == 1)
+        {
+            fila = buscarPosicionFila (posicion);
+            columna = buscarPosicionColumna (posicion);
+            if (idJugador == 'X') {
+                arregloJugadasX[*validosX] = posicion;
+                (*validosX)++;
+                matrix [fila][columna] = 'X';
+            } else if (idJugador == 'O') {
+                arregloJugadasO[*validosO] = posicion;
+                (*validosO)++;
+                matrix [fila][columna] = 'O';
+            }
+        }
+        else
+        {
+            printf ("Jugada Invalida!. Intente nuevamente\n");
+            system("pause");
+        }
+    } ///fin while
+
+}
+
+int buscarPosicionFila (int posicion) //ok
+{
+    int fila;
+
+    if (posicion == 7 || posicion ==8 || posicion ==9)
+    {
+        fila = 0;
+    }
+    else if (posicion == 4 || posicion ==5 || posicion ==6)
+    {
+        fila = 1;
+    }
+    else if (posicion == 1 || posicion ==2 || posicion ==3)
+    {
+        fila = 2;
+    }
+    return fila;
+}
+
+int buscarPosicionColumna (int posicion) //ok
+{
+    int columna;
+
+    if (posicion == 7 || posicion ==4 || posicion ==1)
+    {
+        columna = 0;
+    }
+    else if (posicion == 8 || posicion ==5 || posicion ==2)
+    {
+        columna = 1;
+    }
+    else if (posicion == 9 || posicion ==6 || posicion ==3)
+    {
+        columna = 2;
+    }
+    return columna;
+}
+
+int verificacionJugada (int posicion, int arregloJugadasX[], int *validosX, int arregloJugadasO[], int *validosO) //ok
+{
+    int verificacionPosicion = 1;
+
+    for (int i=0; i<*validosX; i++)
+    {
+        if (posicion == arregloJugadasX [i])
+        {
+            verificacionPosicion =0;
+        }
+    }
+    for (int j=0; j<*validosO; j++)
+    {
+        if (posicion == arregloJugadasO [j])
+        {
+            verificacionPosicion =0;
+        }
+    }
+    return verificacionPosicion;
+}
+
+int verificarIfGanador(int arr[], int v, int posA, int posB, int posC)
+{
+    int ganador=0;
+
+
+    for(int i=0; i<v; i++)
+    {
+        if(arr[i] == posA)
+        {
+            ganador++;
+        }
+        else if (arr[i] == posB)
+        {
+            ganador++;
+        }
+        else if (arr[i] == posC)
+        {
+            ganador++;
+        }
+    }
+
+    if(ganador==3)
+    {
+        ganador=1;
+    }
+    else
+    {
+        ganador=0;
+    }
+    return ganador;
+}
+
+int verificarVictoria(int arr[],int v)
+{
+    int flag=0;
+    int counter=0;
+    if(flag==0 && counter==0)
+    {
+        flag=verificarIfGanador(arr, v, 7, 8, 9);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 4, 5, 6);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 1, 2, 3);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 7, 4, 1);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 8, 5, 2);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 9, 6, 3);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 7, 5, 3);
+        if(flag==0 && counter==0)
+            flag=verificarIfGanador(arr, v, 9, 5, 1);
+        counter=1;
+    }
+    return flag;
+}
+char ganadorPartida(int arrX[], int arrO[], int vX, int vO)
+{
+    int winnerX=0;
+    int winnerO=0;
+    char ganador='n';
+
+    winnerX=verificarVictoria(arrX, vX);
+    winnerO=verificarVictoria(arrO, vO);
+
+
+    if(winnerX==1)
+    {
+        ganador='X';
+    }
+    else if(winnerO==1)
+    {
+        ganador='O';
+    }
+
+    return ganador;
+}
+int mostrarGanador(char ganador)
+{
+    int win=0;
+
+    if(ganador=='X')
+    {
+        printf("\nFELICITACIONES JUGADOR X GANASTE\n\n");
+        win=1;
+
+    }
+    if(ganador=='O')
+    {
+        printf("\nFELICITACIONES JUGADOR O GANASTE\n\n");
+        win=1;
+    }
+    return win;
+}
+
+void mostrarMatrix (char matrix [3][3]) //ok
+{
+    printf("\nTABLERO\n\n");
+    for (int i=0; i<3; i++)
+    {
+        for (int j=0; j<3; j++)
+        {
+            printf ("[%c]",matrix[i][j]);
+        }
+        printf ("\n");
+    }
+}
+
+void iniciarSesionInvitado (stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado ) {
+
+        int validacionUsuario = 0; ///1: Validado, 0: No validado
+
+        char usuarioIngresado2 [15];
+        char passwordIngresado2 [15];
+        int i = 0;
+
+        system ("cls");
+        do {
+            system ("cls");
+            printf ("_______________________________________\n");
+            printf ("            INICIO DE SESION DE INVITADO\n");
+            printf ("_______________________________________\n");
+            printf ("_______________________________________\n");
+
+            printf ("Ingrese usuario jugador 2: \n");
+            scanf (" %s", &usuarioIngresado2);
+
+            i = 0;
+            while (i < *validosJugadores && validacionUsuario == 0 ) {
+                    if (arregloJugadores[i].idJugador != (*idJugadorUsuario)) {
+                              if (strcmp(usuarioIngresado2, arregloJugadores[i].username) == 0) { ///Valida username JUGADOR 2 ingresado
+                                printf ("Ingrese Password jugador 2: \n");
+                                scanf (" %s", &passwordIngresado2);
+                                if (strcmp(passwordIngresado2, arregloJugadores[i].password) == 0)  { ///Valida password JUGADOR 2 ingresado
+                                    validacionUsuario = 1;
+                                    (*idJugadorInvitado) = arregloJugadores[i].idJugador;
+                                } else {
+                                    printf ("Password incorrecto, intente nuevamente \n");
+                                    system ("pause");
+
+                                }
+                              } else {
+                                if (i == *validosJugadores - 1 && validacionUsuario == 0) {
+                                    printf ("El usuario 2 no existe, intente nuevamente \n");
+                                    system ("pause");
+                                }
+                              }
+                              i = i + 1;
+                    }
+            }
+
+        i = 0;
+        } while (validacionUsuario != 1);
+
+        system ("cls");
+        printf ("%s bienvenido al juego TA TE TI\n", usuarioIngresado2);
+        system ("pause");
+
+}
+
+
+
+
 
 ///Otras Funciones
 void mostrarJugador (stJugador jugador) {
