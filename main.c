@@ -67,12 +67,12 @@ int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int
 ///10. Jugar Partida
 int mainEstadoJugarPartida (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario);
 
-///15. MODO DOS JUGADORES
+///16. MODO DOS JUGADORES
 int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
 
 void iniciarSesionInvitado (stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
-void partida();
-void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador);
+void partida(stJugador arregloJugadores[], int *idJugadorUsuario, int *idJugadorInvitado);
+void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador, char nombreJugador []);
 int buscarPosicionFila (int posicion);
 int buscarPosicionColumna (int posicion);
 int verificacionJugada (int posicion, int arregloJugadasX[], int *validosX, int arregloJugadasO[], int *validosO);
@@ -105,6 +105,7 @@ int main()
 int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
 
     int idJugadorUsuario;
+    int idJugadorInvitado;
 
     switch (estadoActual) {
 
@@ -139,6 +140,10 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
 
         case 10: ///JUGAR PARTIDA
             estadoActual = mainEstadoJugarPartida (estadoActual,arregloJugadores, &idJugadorUsuario);
+            break;
+
+        case 16: ///MODO DOS JUGADORES
+            estadoActual = mainEstadoJugarPartidaDosJugadores (estadoActual,arregloJugadores,validosJugadores, &idJugadorUsuario, &idJugadorInvitado);
             break;
 
         case 99: ///VER ARREGLO
@@ -538,7 +543,6 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
 
             i = 0;
             while (i < *validosJugadores && validacionUsuario == 0 ) {
-            ///for (int i = 0; i < *validosJugadores; i++) {
                 if (strcmp(usuarioIngresado, arregloJugadores[i].username) == 0) { ///Valida username ingresado
                     printf ("Ingrese Password: \n");
                     scanf (" %s", &passwordIngresado);
@@ -548,9 +552,10 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
                     } else {
                         printf ("Password incorrecto, intente nuevamente \n");
                         system ("pause");
+                        break;
 
                     }
-                }else {
+                } else {
                     if (i == *validosJugadores - 1 && validacionUsuario == 0) {
                         printf ("El usuario no existe, intente nuevamente \n");
                         system ("pause");
@@ -670,10 +675,12 @@ int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugad
 
         char opcionRevancha = 'N';
 
-        iniciarSesionInvitado (arregloJugadores, validosJugadores, idJugadorUsuario, idJugadorInvitado );
+        iniciarSesionInvitado (arregloJugadores, validosJugadores, idJugadorUsuario, idJugadorInvitado);
+
+
 
         do {
-        partida();
+        partida(arregloJugadores, idJugadorUsuario, idJugadorInvitado);
         system("pause");
         system("cls");
         printf ("DESEA JUGAR REVANCHA <y/n>?");
@@ -687,7 +694,7 @@ int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugad
 
 }
 
-void partida()
+void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugadorInvitado)
 {
 
     char Tablero [3][3] = {'7', '8', '9', '4', '5', '6', '1', '2', '3'};
@@ -703,7 +710,7 @@ void partida()
     while(win==0 && jugadas<9)
     {
         idJugador = 'X';
-        ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador);
+        ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador, arregloJugadores[*idJugadorUsuario-1].nombre);
         jugadas++;
 
         win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
@@ -711,7 +718,7 @@ void partida()
         if(jugadas<9 && win != 1)
         {
             idJugador = 'O';
-            ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador);
+            ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador, arregloJugadores[*idJugadorInvitado-1].nombre);
             jugadas++;
             win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
         }
@@ -724,7 +731,7 @@ void partida()
     }
 }
 
-void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador) //ok
+void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador, char nombreJugador []) //ok
 {
     int posicion = 0;
     int fila;
@@ -735,7 +742,7 @@ void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int 
     {
         system("cls");
         mostrarMatrix(matrix);
-        printf("Jugador %c Ingrese posicion desde teclado numerico:\n", idJugador);
+        printf("Jugador %s (%c) Ingrese posicion desde teclado numerico:\n",nombreJugador, idJugador);
         scanf ("%d", &posicion);
         verificacionJugadaIngresada = verificacionJugada (posicion, arregloJugadasO, validosO,arregloJugadasX,validosX); //0 : Jugada invalida,  1: juagada valida
         if (verificacionJugadaIngresada == 1)
@@ -940,36 +947,42 @@ void iniciarSesionInvitado (stJugador arregloJugadores[], int *validosJugadores,
         system ("cls");
         do {
             system ("cls");
+
             printf ("_______________________________________\n");
-            printf ("            INICIO DE SESION DE INVITADO\n");
+            printf ("    INICIO DE SESION DE INVITADO\n");
             printf ("_______________________________________\n");
             printf ("_______________________________________\n");
 
-            printf ("Ingrese usuario jugador 2: \n");
-            scanf (" %s", &usuarioIngresado2);
+            do {
+               printf ("Ingrese usuario jugador 2: \n");
+               scanf (" %s", &usuarioIngresado2);
+            } while (strcmp(usuarioIngresado2, arregloJugadores[*idJugadorUsuario-1].username) == 0);
+
 
             i = 0;
             while (i < *validosJugadores && validacionUsuario == 0 ) {
-                    if (arregloJugadores[i].idJugador != (*idJugadorUsuario)) {
-                              if (strcmp(usuarioIngresado2, arregloJugadores[i].username) == 0) { ///Valida username JUGADOR 2 ingresado
-                                printf ("Ingrese Password jugador 2: \n");
-                                scanf (" %s", &passwordIngresado2);
-                                if (strcmp(passwordIngresado2, arregloJugadores[i].password) == 0)  { ///Valida password JUGADOR 2 ingresado
-                                    validacionUsuario = 1;
-                                    (*idJugadorInvitado) = arregloJugadores[i].idJugador;
-                                } else {
-                                    printf ("Password incorrecto, intente nuevamente \n");
-                                    system ("pause");
-
-                                }
-                              } else {
-                                if (i == *validosJugadores - 1 && validacionUsuario == 0) {
-                                    printf ("El usuario 2 no existe, intente nuevamente \n");
-                                    system ("pause");
-                                }
-                              }
-                              i = i + 1;
+                    printf ("Ingrese al while - i = %i \n", i);
+                  if (strcmp(usuarioIngresado2, arregloJugadores[i].username) == 0) { ///Valida username JUGADOR 2 ingresado
+                            printf ("Ingrese Password jugador 2: \n");
+                            scanf (" %s", &passwordIngresado2);
+                            if (strcmp(passwordIngresado2, arregloJugadores[i].password) == 0)  { ///Valida password JUGADOR 2 ingresado
+                                validacionUsuario = 1;
+                                (*idJugadorInvitado) = arregloJugadores[i].idJugador;
+                            } else {
+                                validacionUsuario = 0;
+                                printf ("Password incorrecto, intente nuevamente \n");
+                                system ("pause");
+                                break;
+                            }
+                   } else {
+                    if (i == *validosJugadores - 1 && validacionUsuario == 0) {
+                        printf ("El username no existe, intente nuevamente \n");
+                        system ("pause");
+                        break;
                     }
+                  }
+                  i = i + 1;
+
             }
 
         i = 0;
