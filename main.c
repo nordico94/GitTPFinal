@@ -3,7 +3,7 @@
 #include <conio.h>
 
 #define JUGADORES "jugadores.dat"
-#define PARTIDAS "partidas.dat"
+#define PARTIDA "partidas.dat"
 #define RELACION "partidaXjugador.dat"
 #define ESC 27
 
@@ -17,6 +17,7 @@ char password[20];
 char dni[10];
 int ptsTotales;
 int eliminado; // 0 = activo, 1 = eliminado
+int idPartidaJugador;
 } stJugador;
 
 typedef struct {
@@ -35,22 +36,24 @@ int puntosJugador; // 3 = gana, 1 = empate y 0 = derrota
 
 
 ///Prototipados de las funciones:
-int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores);
+int diagrama (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int *validosPxJ);
 
 ///Funciones de cada estado
 ///1.Presentacion
-int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores);
+int mainEstadoPresentacion (int estadoActual);
 
 ///2. Cargar Informacion
-int mainEstadoCargarInformacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores);
+int mainEstadoCargarInformacion (int estadoActual, char nombreArchivoJugadores[],stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int * validosPxJ);
+int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int *validosPxJ);
 
 ///3. Descargar Informacion
-int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores);
+int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int *validosPxJ);
 
 ///4. Menu Principal
 int mainEstadoMenuPrincipal (int estadoActual);
 
 ///5.Registrarse
+int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *validosJugadores);
 stJugador cargarJugador (stJugador arregloJugadores[], int *validosJugadores, int aux);
 char* establecerEmail (stJugador arregloJugadores[], int validosJugadores, int aux);
 char* establecerUsername (stJugador arregloJugadores[], int validosJugadores, int aux);
@@ -68,10 +71,9 @@ int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int
 int mainEstadoJugarPartida (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario);
 
 ///16. MODO DOS JUGADORES
-int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
-
+int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado, stPartida arregloPartidas[], int *validosPartida, stPartidaXJugador arregloPartidaXJugador[], int *validosPxJ);
 void iniciarSesionInvitado (stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado);
-void partida(stJugador arregloJugadores[], int *idJugadorUsuario, int *idJugadorInvitado);
+void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugadorInvitado, stPartida arregloPartida[], int *validosPartida, stPartidaXJugador arregloPxJ[], int *validosPxJ);
 void ingresoJugada (char matrix [3][3],int arregloJugadasO[], int *validosO,int arregloJugadasX[], int *validosX, char idJugador, char nombreJugador []);
 int buscarPosicionFila (int posicion);
 int buscarPosicionColumna (int posicion);
@@ -97,12 +99,18 @@ int main()
  stJugador arregloJugadores[15];
  int validosJugadores = 0;
 
+  stPartida arregloPartida[15];
+ int validosPartida = 0;
+
+  stPartidaXJugador arregloPxJ[15];
+ int validosPxJ = 0;
+
  while (estadoActual != 0) {
-    estadoActual = diagrama (estadoActual, JUGADORES, arregloJugadores, &validosJugadores); ///Paso direccion de validos
+    estadoActual = diagrama (estadoActual, JUGADORES, arregloJugadores, &validosJugadores, PARTIDA,  arregloPartida, &validosPartida, RELACION, arregloPxJ, &validosPxJ); ///Paso direccion de validos
  }
 }
 
-int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+int diagrama (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[],stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int *validosPxJ) {
 
     int idJugadorUsuario;
     int idJugadorInvitado;
@@ -111,15 +119,15 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
 
         case 1: ///PRESENTACION
 
-            estadoActual = mainEstadoPresentacion (estadoActual, nombreArchivo,arregloJugadores, validosJugadores); ///ValidosJugadores es direccion
+            estadoActual = mainEstadoPresentacion (estadoActual); ///ValidosJugadores es direccion
             break; ///Fin case 1
 
         case 2: ///CARGAR INFORMACION
-            estadoActual = mainEstadoCargarInformacion (estadoActual,nombreArchivo,arregloJugadores,validosJugadores); ///ValidosJugadores es direccion
+            estadoActual = mainEstadoCargarInformacion (estadoActual,nombreArchivoJugadores,arregloJugadores,validosJugadores, nombreArchivoPartida, arregloPartida, validosPartida, nombreArchivoPartidaXJugador, arregloPxJ, validosPxJ); ///ValidosJugadores es direccion
             break; ///Fin case 2
 
         case 3: ///DESCARGAR INFORMACION
-            estadoActual = mainEstadoDescargarInformacion (estadoActual,nombreArchivo,arregloJugadores,validosJugadores); ///ValidosJugadores es direccion
+            estadoActual = mainEstadoDescargarInformacion (estadoActual,nombreArchivoJugadores,arregloJugadores,validosJugadores, nombreArchivoPartida, arregloPartida, validosPartida, nombreArchivoPartidaXJugador, arregloPxJ, validosPxJ); ///ValidosJugadores es direccion
             break; ///Fin case 2
 
         case 4: ///MENU PRINCIPAL
@@ -127,7 +135,7 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
             break; /// Fin case 3
 
         case 5: ///REGISTRARSE
-            estadoActual = mainEstadoRegistrarse (estadoActual,arregloJugadores,validosJugadores,1);    ///ValidosJugadores es direccion
+            estadoActual = mainEstadoRegistrarse (estadoActual,arregloJugadores,validosJugadores);    ///ValidosJugadores es direccion
             break; ///Fin case 4
 
         case 6: ///INICIAR SESION
@@ -143,7 +151,7 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
             break;
 
         case 16: ///MODO DOS JUGADORES
-            estadoActual = mainEstadoJugarPartidaDosJugadores (estadoActual,arregloJugadores,validosJugadores, &idJugadorUsuario, &idJugadorInvitado);
+            estadoActual = mainEstadoJugarPartidaDosJugadores (estadoActual,arregloJugadores,validosJugadores, &idJugadorUsuario, &idJugadorInvitado, arregloPartida, validosPartida, arregloPxJ, validosPxJ);
             break;
 
         case 99: ///VER ARREGLO
@@ -155,43 +163,19 @@ int diagrama (int estadoActual, char nombreArchivo[], stJugador arregloJugadores
 }
 
 ///1. Funciones Estado PRESENTACION
-//int mainEstadoPresentacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
-//
-//            char cTransicion = '1';
-//
-//            system ("cls");
-//            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
-//            printf ("__________________________ \n");
-//            printf ("Bienvenido \n");
-//            printf ("    a \n");
-//            printf ("TA TE TI \n");
-//            printf ("__________________________ \n");
-//
-//            printf ("Presione una tecla... <S: Salir>)");
-//            scanf (" %c", &cTransicion);
-//
-//            if (cTransicion =='S' || cTransicion == 's') {
-//                estadoActual = 0; ///Sale de la consola
-//            } else {
-//                estadoActual = 2; ///Transicion a estado 2: CARGAR INFORMACION
-//            }
-//
-//            return estadoActual;
-//}
 
-int mainEstadoPresentacion(int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+int mainEstadoPresentacion(int estadoActual) {
 
     char cTransicion;
 
     system("cls");
-    printf("Validos (pre-estado): %i \n", (*validosJugadores));
     printf("__________________________ \n");
     printf("Bienvenido \n");
     printf("    a \n");
     printf("TA TE TI \n");
     printf("__________________________ \n");
 
-    printf("Presione una tecla... <S: Salir>)");
+    printf("Presione una tecla... <S: Salir>) \n");
 
     cTransicion = getch();
 
@@ -204,17 +188,20 @@ int mainEstadoPresentacion(int estadoActual, char nombreArchivo[], stJugador arr
     return estadoActual;
 }
 
-///2. Funciones Estado GARGAR INFORMACION
+///2. Funciones Estado CARGAR INFORMACION
 
-int mainEstadoCargarInformacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+int mainEstadoCargarInformacion (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int * validosPxJ) {
 
 
             stJugador jugador;
-            int iTransicion = 0;
+            stPartida partida;
+            stPartidaXJugador partidaXJugador;
+
+            void deArchivoAArreglo (nombreArchivo, nombreArreglo, validos);
 
             ///Carga de informacion desde archivo JUGADORES a arregloJugadores
 
-            FILE *archi = fopen (nombreArchivo, "rb");
+            FILE *archi = fopen (nombreArchivoJugadores, "rb");
             if (archi) {  ///Si el archivo existe carga la informacion en un arreglo
                             while (fread (&jugador, sizeof (stJugador), 1, archi)) {
                                 arregloJugadores[*validosJugadores] = jugador;
@@ -225,17 +212,20 @@ int mainEstadoCargarInformacion (int estadoActual, char nombreArchivo[], stJugad
                             ///Logica de transicion
                             estadoActual = 4; ///Transición a estado 3: MENU PRINCIPAL
                             system ("cls");
-                            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
                             printf ("*** Cargando datos del juego ***  \n");
                             system ("pause");
 
-            } else {   ///Si el archivo no existe registra al primer jugador en el archivo
-                            printf ("Sin datos. Se cargara al primer jugador del sistema \n");
-                            FILE *archi = fopen (nombreArchivo, "wb");
+            } else {        ///Si el archivo no existe registra al primer jugador en el archivo
+                            system ("cls");
+                            printf ("___________________________________________________\n");
+                            printf ("                 ATENCION \n");
+                            printf ("___________________________________________________\n");
+                            printf ("No hay archivos creados \n");
+                            printf ("Se cargara al primer jugador del sistema \n");
+                            FILE *archi = fopen (nombreArchivoJugadores, "wb");
 
                             if (archi) {
                                 ///Crear primer jugador del archivo
-
                                 jugador = cargarJugador (arregloJugadores, validosJugadores, 0);
                                 jugador.idJugador = 1;
                                 fwrite (&jugador, sizeof(stJugador), 1, archi);
@@ -245,20 +235,43 @@ int mainEstadoCargarInformacion (int estadoActual, char nombreArchivo[], stJugad
                             //Logica de transicion
                             estadoActual = 2;    ///Transicion a estado 2: CARGAR INFORMACION
             }
+
+
+            ///Carga de informacion desde archivo PARTIDAS a arregloPartida - Actulizara el valor de validosPartida
+            FILE *archi2 = fopen (nombreArchivoPartida, "rb");
+            if (archi2) {  ///Si el archivo existe carga la informacion en un arreglo
+                            while (fread (&partida, sizeof (stPartida), 1, archi2)) {
+                                arregloPartida[*validosPartida] = partida;
+                                (*validosPartida)++;
+                            }
+                            fclose (archi);
+            } ///Si el archivo no existe, es creado luego de hacer la descarga arreglo a archivo
+
+            ///Carga de informacion desde archivo PARTIDASxJUGADOR a arregloPxJ - Actulizara el valor de validosPxJ
+            FILE *archi3 = fopen (nombreArchivoPartidaXJugador, "rb");
+            if (archi3) {  ///Si el archivo existe carga la informacion en un arreglo
+                            while (fread (&partidaXJugador, sizeof (stPartidaXJugador), 1, archi3)) {
+                                arregloPxJ[*validosPxJ] = partidaXJugador;
+                                (*validosPxJ)++;
+                            }
+                            fclose (archi);
+            } ///Si el archivo no existe, es creado luego de hacer la descarga arreglo a archivo
+
             return estadoActual;
 }
 
-
 ///3. Funciones Estado DESCARGAR INFORMACION
 
-int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJugador arregloJugadores[], int *validosJugadores) {
+int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivoJugadores[], stJugador arregloJugadores[], int *validosJugadores, char nombreArchivoPartida[], stPartida arregloPartida[], int *validosPartida, char nombreArchivoPartidaXJugador[], stPartidaXJugador arregloPxJ[], int *validosPxJ) {
 
 
             stJugador jugador;
+            stPartida partida;
+            stPartidaXJugador partidaXJugador;
 
             ///Descarga de informacion de jugadores:  Desde arregloJugadores a archivo JUGADORES
 
-            FILE *archi = fopen (nombreArchivo, "wb"); ///Se reescribe archivo con los nuevos datos
+            FILE *archi = fopen (nombreArchivoJugadores, "wb"); ///Se reescribe archivo con los nuevos datos
             if (archi) {  ///Si el archivo existe descarga la informacion en un arreglo
                     for (int i = 0; i < (*validosJugadores); i++ ) {
                         jugador = arregloJugadores[i];
@@ -268,7 +281,35 @@ int mainEstadoDescargarInformacion (int estadoActual, char nombreArchivo[], stJu
             }
 
             (*validosJugadores) = 0;
-            printf ("Validos (pre-estado): %i \n", (*validosJugadores));
+
+
+            ///Descarga de informacion de partidas:  Desde arregloPartida a archivo PARTIDA
+
+            FILE *archi2 = fopen (nombreArchivoPartida, "wb"); ///Se reescribe archivo con los nuevos datos
+            if (archi2) {  ///Si el archivo existe descarga la informacion en un arreglo
+                    for (int i = 0; i < (*validosPartida); i++ ) {
+                        partida = arregloPartida[i];
+                        fwrite (&partida, sizeof (stPartida), 1, archi);
+                    }
+                    fclose (archi2);
+            }
+
+            (*validosPartida) = 0;
+
+            ///Descarga de informacion de partidasXJugador:  Desde arregloPxJ a archivo PartidaXJugador
+
+            FILE *archi3 = fopen (nombreArchivoPartidaXJugador, "wb"); ///Se reescribe archivo con los nuevos datos
+            if (archi2) {  ///Si el archivo existe descarga la informacion en un arreglo
+                    for (int i = 0; i < (*validosPxJ); i++ ) {
+                        partidaXJugador = arregloPxJ[i];
+                        fwrite (&partidaXJugador, sizeof (stPartidaXJugador), 1, archi);
+                    }
+                    fclose (archi3);
+            }
+
+            (*validosPxJ) = 0;
+
+
             printf ("*** Descargando datos del juego a archivo... ****\n");
             system ("pause");
 
@@ -293,7 +334,7 @@ int mainEstadoMenuPrincipal (int estadoActual) {
         printf ("\n");
         printf ("1. INICIAR SESION\n");
         printf ("2. REGISTRARSE\n");
-        printf ("3. VER ARREGLO\n");
+        printf ("3. VER ARREGLO DE JUGADORES\n");
         printf ("4. SALIR \n");
         printf ("\n");
         printf ("\n");
@@ -325,12 +366,11 @@ int mainEstadoMenuPrincipal (int estadoActual) {
 
 ///5. Funciones Estado REGISTRARSE
 
-int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int aux) {
+int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *validosJugadores) {
 
     stJugador jugadorNuevo;
 
     system ("cls");
-    printf ("Validos (pre-estado): %i \n", (*validosJugadores));
     printf ("___________________________________________ \n");
     printf ("             REGISTRO \n");
     printf ("___________________________________________ \n");
@@ -340,12 +380,13 @@ int mainEstadoRegistrarse (int estadoActual, stJugador arregloJugadores[], int *
     jugadorNuevo = cargarJugador (arregloJugadores, validosJugadores, 1);
     jugadorNuevo.idJugador = (*validosJugadores)+1;
 
+
+
     system ("cls");
-    printf ("Datos del nuevo jugador : \n");
+    printf ("DATOS DEL NUEVO JUGADOR : \n");
     mostrarJugador (jugadorNuevo);
     arregloJugadores[*validosJugadores]=jugadorNuevo;
     (*validosJugadores)++;
-    printf ("validos actualizado: %i \n" , *validosJugadores );
 
     system ("pause");
 
@@ -379,6 +420,7 @@ stJugador cargarJugador (stJugador arregloJugadores[], int *validosJugadores, in
 
     jugadorNuevo.ptsTotales = 0;
     jugadorNuevo.eliminado = 0;
+    jugadorNuevo.idPartidaJugador = 0;
 
     return jugadorNuevo;
 }
@@ -405,7 +447,7 @@ char* establecerEmail (stJugador arregloJugadores[], int validosJugadores, int a
         condicionUnico = 1;    ///Inicia validado
 
 
-        printf ("Ingrese email: \n");
+        printf ("Ingrese email (Debe contener @ y finalizar con .com): \n");
         scanf (" %s", &email);
 
         longitudEmail = strlen(email);
@@ -494,7 +536,7 @@ char* establecerPassword () {
         condicionMinuscula = 0;
         condicionMayuscula = 0;
 
-        printf ("Ingrese password: \n");
+        printf ("Ingrese password (debe contener al menos una letra minuscula y una letra mayuscula): \n");
         scanf (" %s", &password); ///passwordTentativo = arreglo de caracteres
 
         i = 0;
@@ -529,20 +571,18 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
         char passwordIngresado [15];
         int i = 0;
 
-        system ("cls");
-        printf ("Validos (pre-estado): %i \n", (*validosJugadores));
         do {
             system ("cls");
             printf ("_______________________________________\n");
             printf ("            INICIO DE SESION\n");
             printf ("_______________________________________\n");
-            printf ("_______________________________________\n");
 
-            printf ("Ingrese Usuario: \n");
+            printf ("Ingrese Usuario  (<s: Salir>): \n");
             scanf (" %s", &usuarioIngresado);
 
+
             i = 0;
-            while (i < *validosJugadores && validacionUsuario == 0 ) {
+            while ((i < *validosJugadores && validacionUsuario == 0) &&   strcmp(usuarioIngresado, "s") != 0) {
                 if (strcmp(usuarioIngresado, arregloJugadores[i].username) == 0) { ///Valida username ingresado
                     printf ("Ingrese Password: \n");
                     scanf (" %s", &passwordIngresado);
@@ -564,15 +604,20 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
                 i = i + 1;
             }
 
-        } while (validacionUsuario != 1);
+        } while (validacionUsuario != 1 && strcmp(usuarioIngresado, "s") != 0);
 
-        system ("cls");
-        printf ("%s bienvenido al juego TA TE TI\n", usuarioIngresado);
-        system ("pause");
+        if (strcmp(usuarioIngresado, "s") != 0) {
+            system ("cls");
+            printf ("%s bienvenido al juego TA TE TI\n", usuarioIngresado);
+            system ("pause");
 
-        ///Logica de transicion
-        iTransicion = 7;    ///Transicion a PERFIL JUGADOR
+            ///Logica de transicion
+            iTransicion = 7;    ///Transicion a PERFIL JUGADOR
+        } else {
+            ///Logica de transicion
+            iTransicion = 4;    ///Transicion a MENU PRINCIPAL
 
+        }
         ///Transicion al siguiente estado
         switch (iTransicion) {
             case 7:
@@ -590,11 +635,9 @@ int mainEstadoIniciarSesion (int estadoActual, stJugador arregloJugadores[], int
 int mainEstadoPerfilJugador (int estadoActual, stJugador arregloJugadores[], int *idJugadorUsuario) {
 
         char opcionPerfil = 0;
-        system ("cls");
-        printf ("idJugador del Usuario: %i \n", (*idJugadorUsuario));
 
         do {
-        ///system ("cls");
+        system ("cls");
         printf ("_______________________________________\n");
         printf ("         HOLA %s \n", arregloJugadores[*idJugadorUsuario-1].nombre);
         printf ("_______________________________________\n");
@@ -671,16 +714,28 @@ int mainEstadoJugarPartidaUnJugador (int estadoActual, stJugador arregloJugadore
 
 
 ///Funciones estado 16: MODO DOS JUGADORES
-int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado ) {
+int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugadores[], int *validosJugadores, int *idJugadorUsuario, int *idJugadorInvitado, stPartida arregloPartida[], int *validosPartida, stPartidaXJugador arregloPartidaXJugador[], int *validosPxJ) {
 
         char opcionRevancha = 'N';
 
         iniciarSesionInvitado (arregloJugadores, validosJugadores, idJugadorUsuario, idJugadorInvitado);
+        printf ("ID INVITADO: %i", (*idJugadorInvitado));
 
 
 
         do {
-        partida(arregloJugadores, idJugadorUsuario, idJugadorInvitado);
+
+        arregloPartida[*validosPartida].idPartida = (*validosPartida) + 1;
+        arregloPartida[*validosPartida].dificultad = 0; ///No hay dificultad en modo 2 jugadores
+        arregloPartida[*validosPartida].esContraCpu = 0; ///Modo 2 jugadores
+        arregloJugadores[*idJugadorUsuario].idPartidaJugador =  arregloJugadores[*idJugadorUsuario].idPartidaJugador + 1;
+        arregloJugadores[*idJugadorInvitado].idPartidaJugador =  arregloJugadores[*idJugadorInvitado].idPartidaJugador + 1;
+
+        (*validosPartida) = (*validosPartida) + 1; ///Actualiza valor de validos;
+
+
+        partida(arregloJugadores, idJugadorUsuario, idJugadorInvitado, arregloPartida, validosPartida, arregloPartidaXJugador, validosPxJ); ///Se debe usar [(*validosPartida) + 1] para obtener el idPartida actual
+
         system("pause");
         system("cls");
         printf ("DESEA JUGAR REVANCHA <y/n>?");
@@ -688,13 +743,13 @@ int mainEstadoJugarPartidaDosJugadores (int estadoActual, stJugador arregloJugad
 
         } while (opcionRevancha != 'n' && opcionRevancha != 'N');
 
-        estadoActual  = 10;      ///JUGAR PARTIDA
+        estadoActual  = 10;      ///MENU JUGAR PARTIDA
 
         return estadoActual;
 
 }
 
-void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugadorInvitado)
+void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugadorInvitado, stPartida arregloPartida[], int *validosPartida, stPartidaXJugador arregloPartidaXJugador[], int *validosPxJ)
 {
 
     char Tablero [3][3] = {'7', '8', '9', '4', '5', '6', '1', '2', '3'};
@@ -713,14 +768,104 @@ void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugado
         ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador, arregloJugadores[*idJugadorUsuario-1].nombre);
         jugadas++;
 
-        win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
+        win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO)); /// Si win = 1: Jugador Usuario (X) gana
+
+        if (win ==1) {
+
+                ///Carga de informacion en arreglo (Ganador):
+                printf ("GANADOR \n");
+                arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+                printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+                arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorUsuario].idPartidaJugador;
+                printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+                arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorUsuario);
+                printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+                arregloPartidaXJugador[*validosPxJ].resultado = 1;
+                printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+                arregloPartidaXJugador[*validosPxJ].puntosJugador = 3;
+                printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+                arregloJugadores[*idJugadorUsuario-1].ptsTotales = arregloJugadores[*idJugadorUsuario-1].ptsTotales + 3;
+
+                (*validosPxJ) = (*validosPxJ) + 1;
+
+                ///Carga de informacion en arreglo (Perdedor):
+                printf ("PERDEDOR \n");
+                arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+                printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+                arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorInvitado].idPartidaJugador;
+                printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+
+                arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorInvitado);
+                printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+                arregloPartidaXJugador[*validosPxJ].resultado = 0;
+                printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+                arregloPartidaXJugador[*validosPxJ].puntosJugador = 0;
+                printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+                arregloJugadores[*idJugadorInvitado-1].ptsTotales = arregloJugadores[*idJugadorInvitado-1].ptsTotales + 0;
+
+                (*validosPxJ) = (*validosPxJ) + 1;
+        }
+
 
         if(jugadas<9 && win != 1)
         {
             idJugador = 'O';
             ingresoJugada (Tablero,arregloJugadasO,&validosO,arregloJugadasX,&validosX, idJugador, arregloJugadores[*idJugadorInvitado-1].nombre);
             jugadas++;
-            win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO));
+            win=mostrarGanador(ganadorPartida(arregloJugadasX, arregloJugadasO, validosX, validosO)); /// Si win = 1: Jugador Usuario (O) gana
+
+            if (win == 1) {
+                    ///Carga de informacion en arreglo (Perdedor):
+                    printf ("GANADOR \n");
+                    arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+                    printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+                    arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorUsuario].idPartidaJugador;
+                    printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+                    arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorUsuario);
+                    printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+                    arregloPartidaXJugador[*validosPxJ].resultado = 0;
+                    printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+                    arregloPartidaXJugador[*validosPxJ].puntosJugador = 0;
+                    printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+
+                    arregloJugadores[*idJugadorUsuario-1].ptsTotales = arregloJugadores[*idJugadorUsuario-1].ptsTotales + 0;
+
+                    (*validosPxJ) = (*validosPxJ) + 1;
+
+                    ///Carga de informacion en arreglo (Ganador):
+                    printf ("PERDEDOR \n");
+                    arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+                    printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+                    arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorInvitado].idPartidaJugador;
+                    printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+
+                    arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorInvitado);
+                    printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+                    arregloPartidaXJugador[*validosPxJ].resultado = 1;
+                    printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+                    arregloPartidaXJugador[*validosPxJ].puntosJugador = 3;
+                    printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+
+                    arregloJugadores[*idJugadorInvitado-1].ptsTotales = arregloJugadores[*idJugadorInvitado-1].ptsTotales + 3;
+
+                    (*validosPxJ) = (*validosPxJ) + 1;
+                    }
         }
     }
     if (win == 0 && jugadas == 9)
@@ -728,6 +873,50 @@ void partida(stJugador arregloJugadores [], int *idJugadorUsuario, int *idJugado
         system("cls");
         mostrarMatrix(Tablero);
         printf("\nEMPATE\n\n");
+
+        ///Carga de informacion en arreglo
+        printf ("USUARIO\n");
+        arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+        printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+        arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorUsuario].idPartidaJugador;
+        printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+        arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorUsuario);
+        printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+        arregloPartidaXJugador[*validosPxJ].resultado = 2;
+        printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+        arregloPartidaXJugador[*validosPxJ].puntosJugador = 1;
+        printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+
+        arregloJugadores[*idJugadorUsuario-1].ptsTotales = arregloJugadores[*idJugadorUsuario-1].ptsTotales + 1;
+
+
+        (*validosPxJ) = (*validosPxJ) + 1;
+
+
+        printf ("INVITADO \n");
+        arregloPartidaXJugador[*validosPxJ].idPartida = arregloPartida[*validosPartida - 1].idPartida;
+        printf ("id Partida: %i \n", arregloPartidaXJugador[*validosPxJ].idPartida);
+
+        arregloPartidaXJugador[*validosPxJ].idPartidaJugador = arregloJugadores[*idJugadorInvitado].idPartidaJugador;
+        printf ("id PartidaJugador: %i \n", arregloPartidaXJugador[*validosPxJ].idPartidaJugador);
+
+
+        arregloPartidaXJugador[*validosPxJ].idJugador = (*idJugadorInvitado);
+        printf ("id Jugador: %i \n", arregloPartidaXJugador[*validosPxJ].idJugador);
+
+        arregloPartidaXJugador[*validosPxJ].resultado = 2;
+        printf ("Resultado partida: %i \n", arregloPartidaXJugador[*validosPxJ].resultado);
+
+        arregloPartidaXJugador[*validosPxJ].puntosJugador = 1;
+        printf ("Puntos obtenidos en partida: %i \n", arregloPartidaXJugador[*validosPxJ].puntosJugador);
+
+        arregloJugadores[*idJugadorInvitado-1].ptsTotales = arregloJugadores[*idJugadorInvitado-1].ptsTotales + 1;
+
+        (*validosPxJ) = (*validosPxJ) + 1;
     }
 }
 
@@ -913,12 +1102,14 @@ int mostrarGanador(char ganador)
     {
         printf("\nFELICITACIONES JUGADOR X GANASTE\n\n");
         win=1;
+        ///Logica para guardar datos de partida
 
     }
     if(ganador=='O')
     {
         printf("\nFELICITACIONES JUGADOR O GANASTE\n\n");
         win=1;
+        ///Logica para guardar datos de partida
     }
     return win;
 }
@@ -1026,4 +1217,6 @@ int mostrarArreglo (int estadoActual, stJugador arregloJugadores[], int *validos
 
     return estadoActual;
 }
+
+
 
